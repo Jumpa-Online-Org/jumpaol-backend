@@ -1,8 +1,8 @@
 module.exports = {
-    HOST: 'localhost',
-    USER: 'root',
-    PASSWORD: 'uhekroco123',
-    DB: 'jumpaoldb',
+    HOST: 'jumpaonline.com',
+    USER: 'jumpaonl_adminon',
+    PASSWORD: '854y(SY@P6',
+    DB: 'jumpaonl_adminon',
     dialect: 'mysql',
     pool: {
         max: 5,

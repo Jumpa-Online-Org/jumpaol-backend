@@ -4,7 +4,13 @@ const Op = db.Sequelize.Op;
 const { getPagination, getPagingData } = require('../../helper')
 
 exports.create = (req, res) => {
-    const body = req.body
+    const body = {
+        ...req.body,
+        post_date: new Date(),
+        post_date_gmt: new Date(),
+        post_modified: new Date(),
+        post_modified_gmt: new Date()
+    }
 
     Post.create(body)
         .then(data => {
@@ -80,7 +86,11 @@ exports.findOne = async (req, res) => {
 
 exports.update = (req, res) => {
     const id = req.params.id
-    let body = req.body
+    let body = {
+        ...req.body,
+        post_modified: new Date(),
+        post_modified_gmt: new Date()
+    }
 
     Post.update(body, {
         where: {
@@ -162,4 +172,22 @@ exports.delete = (req, res) => {
             message: err.message
         })
     })
+};
+
+exports.detail = async (req, res) => {
+    const id = req.params.id
+
+    Post.findByPk(id)
+        .then(data => {
+            res.send({
+                status: 200,
+                message: "success fetch data!",
+                data: data
+            })
+        })
+        .catch(err => {
+            res.status(400).send({
+                message: err.message
+            });
+        });
 };
