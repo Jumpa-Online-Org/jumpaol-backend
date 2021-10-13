@@ -27,9 +27,9 @@ exports.create = (req, res) => {
 };
 
 exports.findAll = (req, res) => {
-    const { q, page, size, post_status } = req.query
+    const { q, page, size, status } = req.query
     let condition = q ? { post_title: {[Op.like]: `%${q}%`} } : null
-    let filterPostStatus = post_status ? { post_status: post_status } : null
+    let filterPostStatus = status ? { post_status: status } : null
 
     const { limit, offset } = getPagination(page, size)
 
