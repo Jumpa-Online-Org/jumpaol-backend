@@ -26,28 +26,45 @@ exports.create = (req, res) => {
         })
 };
 
-exports.findAll = (req, res) => {
+exports.findAll = async (req, res) => {
     const { q, page, size, status } = req.query
     let condition = q ? { post_title: {[Op.like]: `%${q}%`} } : null
     let filterPostStatus = status ? { post_status: status } : null
 
     const { limit, offset } = getPagination(page, size)
 
-    Post.findAndCountAll({ where: {...condition, ...filterPostStatus, post_type: 'post'}, limit, offset })
-        .then(data => {
-            const response = getPagingData(data, page, limit)
+    try{
+        const data = await Post.findAndCountAll({ 
+            where: {
+                ...condition, 
+                ...filterPostStatus, 
+                post_type: 'post',
+            },
+            order: [['post_date', 'DESC']],
+            limit, 
+            offset 
+        })
 
-            res.send({
-                status: 200,
-                message: "success fetch data!",
-                data: response
+        if(!data){
+            return res.status(404).send({
+                status: 404,
+                message: "Data not found!",
+                data: []
             })
+        }
+
+        return res.send({
+            status: 200,
+            message: "Success fetch data!",
+            data: getPagingData(data)
         })
-        .catch(err => {
-            res.status(400).send({
-                message: err.message
-            })
+    }catch(err) {
+        return res.status(500).send({
+            status: 500,
+            message: err.parent.sqlMessage,
+            data: []
         })
+    }
 
 };
 
@@ -57,31 +74,43 @@ exports.findOne = async (req, res) => {
         views: 0
     }
 
-    const getPrevViews = await Post.findByPk(id, {
-        attributes: ['views']
-    })
+    try{
+        const getPrevViews = await Post.findByPk(id, {
+            attributes: ['views']
+        })
 
-    body.views = getPrevViews?.views + 1
+        body.views = getPrevViews?.views + 1
 
-    Post.update(body, {
-        where: {
-            id: id
-        }
-    }).then(d => {
-        Post.findByPk(id)
-            .then(data => {
-                res.send({
-                    status: 200,
-                    message: "success fetch data!",
-                    data: data
+        const updateView = await Post.update(body, {
+            where: {
+                id: id
+            }
+        })
+
+        if(updateView){
+            const postByPK = await Post.findByPk(id)
+
+            if(!postByPK){
+                return res.status(404).send({
+                    status: 404,
+                    message: "Data Not Found!",
+                    data: []
                 })
+            }
+
+            return res.send({
+                status: 200,
+                message: "Success fetch data!",
+                data: postByPK
             })
-            .catch(err => {
-                res.status(400).send({
-                    message: err.message
-                });
-            });
-    }).catch(err => console.log(err))
+        }
+    }catch(err){
+        return res.status(500).send({
+            status: 500,
+            message: "Opps something wrong!",
+            data: []
+        })
+    }
 };
 
 exports.update = (req, res) => {
@@ -177,17 +206,28 @@ exports.delete = (req, res) => {
 exports.detail = async (req, res) => {
     const id = req.params.id
 
-    Post.findByPk(id)
-        .then(data => {
-            res.send({
-                status: 200,
-                message: "success fetch data!",
-                data: data
+    try{
+        const data = await Post.findByPk(id)
+
+        if(!data){
+            return res.status(404).send({
+                status: 404,
+                message: "Data not found",
+                data: []
             })
+        }
+
+        return res.send({
+            status: 200,
+            message: "Success fetch data!",
+            data: data
         })
-        .catch(err => {
-            res.status(400).send({
-                message: err.message
-            });
-        });
+
+    }catch(err){
+        return res.status(500).send({
+            status: 200,
+            message: "Success fetch data!",
+            data: data
+        })
+    }
 };
