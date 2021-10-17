@@ -39,8 +39,9 @@ exports.findAll = async (req, res) => {
                 ...condition, 
                 ...filterPostStatus, 
                 post_type: 'post',
+                deleted_at: null
             },
-            order: [['post_date', 'DESC']],
+            order: [['post_date', 'DESC'], ['id', 'DESC']],
             limit, 
             offset 
         })
