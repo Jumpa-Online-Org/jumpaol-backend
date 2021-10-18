@@ -15,5 +15,6 @@ db.Sequelize = Sequelize
 db.seq = seq
 
 db.posts = require('./post.model.js')(seq, Sequelize)
+db.users = require('./user.model')(seq, Sequelize)
 
 module.exports = db
