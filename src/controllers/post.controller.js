@@ -27,11 +27,11 @@ exports.create = (req, res) => {
 };
 
 exports.findAll = async (req, res) => {
-    const { q, page, size, status } = req.query
+    const { q, page, status, per_page } = req.query
     let condition = q ? { post_title: {[Op.like]: `%${q}%`} } : null
     let filterPostStatus = status ? { post_status: status } : null
 
-    const { limit, offset } = getPagination(page, size)
+    const { limit, offset } = getPagination(page, per_page)
 
     try{
         const data = await Post.findAndCountAll({ 
@@ -57,7 +57,7 @@ exports.findAll = async (req, res) => {
         return res.send({
             status: 200,
             message: "Success fetch data!",
-            data: getPagingData(data)
+            data: getPagingData(data, page, limit)
         })
     }catch(err) {
         return res.status(500).send({
