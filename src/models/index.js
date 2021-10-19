@@ -17,4 +17,9 @@ db.seq = seq
 db.posts = require('./post.model.js')(seq, Sequelize)
 db.users = require('./user.model')(seq, Sequelize)
 
+db.posts.belongsTo(db.users, {
+    foreignKey: "post_author",
+    as: "author"
+})
+
 module.exports = db

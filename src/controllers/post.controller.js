@@ -34,7 +34,8 @@ exports.findAll = async (req, res) => {
     const { limit, offset } = getPagination(page, per_page)
 
     try{
-        const data = await Post.findAndCountAll({ 
+        const data = await Post.findAndCountAll({
+            include: ["author"],
             where: {
                 ...condition, 
                 ...filterPostStatus, 
