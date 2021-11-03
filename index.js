@@ -10,7 +10,6 @@ db.seq.sync()
 var whitelist = ['http://localhost:8081', 'http://localhost:3000']
 var corsOptions = {
     origin: function (origin, callback) {
-        console.log(origin)
         if (whitelist.indexOf(origin) !== -1 || !origin) {
             callback(null, true)
         } else {
@@ -30,6 +29,8 @@ app.get("/", (req, res) => {
 })
 
 require('./src/routes/post.routes')(app)
+require('./src/routes/category.routes')(app)
+require('./src/routes/subCategory.routes')(app)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
