@@ -26,12 +26,17 @@ db.posts.belongsTo(db.users, {
 
 db.category.hasMany(db.subCategory, { 
     foreignKey: "category_id", 
-    as: 'sub_categories'
+    as: "sub_categories"
 })
 
 db.subCategory.belongsTo(db.category, {
     foreignKey: "category_id",
-    as: 'category'
+    as: "category"
+})
+
+db.posts.belongsTo(db.category, {
+    foreignKey: "category_id",
+    as: "category"
 })
 
 module.exports = db

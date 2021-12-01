@@ -11,6 +11,8 @@ module.exports = app => {
     router.put("/delete-temporary/:id", posts.deleteTemporary);
     router.delete("/delete/:id", posts.delete);
     router.get("/detail/:id", posts.detail);
+    router.get("/home/popular", posts.popular);
+    router.get("/home/latest", posts.latest);
 
     //prefix route
     app.use('/api/posts', router)

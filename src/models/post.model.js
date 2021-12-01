@@ -75,6 +75,9 @@ module.exports = (seq, Sequelize) => {
         deleted_at: {
             type: Sequelize.DATE
         },
+        category_id: {
+            type: Sequelize.INTEGER
+        }
     })
 
     return Post

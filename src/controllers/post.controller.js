@@ -27,24 +27,26 @@ exports.create = (req, res) => {
 };
 
 exports.findAll = async (req, res) => {
-    const { q, page, status, per_page } = req.query
+    const { q, page, status, per_page, category_id, latest, popular } = req.query
     let condition = q ? { post_title: {[Op.like]: `%${q}%`} } : null
     let filterPostStatus = status ? { post_status: status } : null
+    let filterCategory = category_id ? { category_id: category_id } : null
 
     const { limit, offset } = getPagination(page, per_page)
 
     try{
         const data = await Post.findAndCountAll({
-            include: ["author"],
+            include: ["author", "category"],
             where: {
                 ...condition, 
-                ...filterPostStatus, 
+                ...filterPostStatus,
+                ...filterCategory,
                 post_type: 'post',
                 deleted_at: null
             },
-            order: [['post_date', 'DESC'], ['id', 'DESC']],
-            limit, 
-            offset 
+            order: [(latest ? ['post_date', 'DESC'] : ['post_date', 'ASC']), ['id', 'DESC'], (popular ? ['views', 'DESC'] : ['views', 'ASC'])],
+            limit,
+            offset
         })
 
         if(!data){
@@ -128,13 +130,13 @@ exports.update = (req, res) => {
             id: id
         }
     }).then(data => {
-        res.send({
+        return res.send({
             status: 200,
             message: "success updated data!",
             data: body
         })
     }).catch(err => {
-        res.status(400).send({
+        return res.status(400).send({
             message: err.message
         })
     })
@@ -151,13 +153,13 @@ exports.deleteTemporary = (req, res) => {
             id: id
         }
     }).then(data => {
-        res.send({
+        return res.send({
             status: 200,
             message: "success delete data!",
             data: body
         })
     }).catch(err => {
-        res.status(400).send({
+        return res.status(400).send({
             message: err.message
         })
     })
@@ -173,14 +175,14 @@ exports.getDeletedPosts = (req, res) => {
         .then(data => {
             const response = getPagingData(data, page, limit)
 
-            res.send({
+            return res.send({
                 status: 200,
                 message: "success fetch data!",
                 data: response
             })
         })
         .catch(err => {
-            res.status(400).send({
+            return res.status(400).send({
                 message: err.message
             })
         })
@@ -194,12 +196,12 @@ exports.delete = (req, res) => {
             id: id
         }
     }).then(data => {
-        res.send({
+        return res.send({
             status: 200,
             message: "success delete data!",
             data: {id}        })
     }).catch(err => {
-        res.status(400).send({
+        return res.status(400).send({
             message: err.message
         })
     })
@@ -226,10 +228,77 @@ exports.detail = async (req, res) => {
         })
 
     }catch(err){
-        return res.status(500).send({
+        return res.status(400).send({
+            message: err.message,
+            data: []
+        })
+    }
+};
+
+exports.popular = async (req, res) => {
+    try {
+        const data = await Post.findAll({
+            include: ["author", "category"],
+            where: {
+                post_status: 'publish',
+                post_type: 'post',
+                deleted_at: null
+            },
+            order: [['views', 'DESC']],
+            limit: 4
+        })
+
+        if (!data) {
+            return res.status(404).send({
+                status: 404,
+                message: "Data not found",
+                data: []
+            })
+        }
+
+        return res.send({
             status: 200,
             message: "Success fetch data!",
             data: data
         })
+    } catch (err) {
+        return res.status(400).send({
+            message: err.message,
+            data: []
+        })
     }
-};
+}
+
+exports.latest = async (req, res) => {
+    try {
+        const data = await Post.findAll({
+            include: ["author", "category"],
+            where: {
+                post_status: 'publish',
+                post_type: 'post',
+                deleted_at: null
+            },
+            order: [['post_date', 'DESC']],
+            limit: 3
+        })
+
+        if (!data) {
+            return res.status(404).send({
+                status: 404,
+                message: "Data not found",
+                data: []
+            })
+        }
+
+        return res.send({
+            status: 200,
+            message: "Success fetch data!",
+            data: data
+        })
+    } catch (err) {
+        return res.status(400).send({
+            message: err.message,
+            data: []
+        })
+    }
+}
