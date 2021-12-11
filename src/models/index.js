@@ -18,6 +18,7 @@ db.posts = require('./post.model.js')(seq, Sequelize)
 db.users = require('./user.model')(seq, Sequelize)
 db.category = require('./category.model')(seq, Sequelize)
 db.subCategory = require('./subCategory.model')(seq, Sequelize)
+db.imagePost = require('./imagePost.model')(seq, Sequelize)
 
 db.posts.belongsTo(db.users, {
     foreignKey: "post_author",
@@ -37,6 +38,11 @@ db.subCategory.belongsTo(db.category, {
 db.posts.belongsTo(db.category, {
     foreignKey: "category_id",
     as: "category"
+})
+
+db.posts.hasMany(db.imagePost, {
+    foreignKey: "post_parent",
+    as: "image"
 })
 
 module.exports = db

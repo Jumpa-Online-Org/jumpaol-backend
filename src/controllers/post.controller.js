@@ -1,5 +1,6 @@
 const db = require("../models");
 const Post = db.posts;
+const Image = db.imagePost;
 const Op = db.Sequelize.Op;
 const { getPagination, getPagingData } = require('../../helper')
 
@@ -36,7 +37,14 @@ exports.findAll = async (req, res) => {
 
     try{
         const data = await Post.findAndCountAll({
-            include: ["author", "category"],
+            include: ["author", "category", {
+                model: Image,
+                as: "image",
+                where: {
+                    post_type: 'attachment'
+                },
+                attributes: ['post_parent', 'guid', 'post_type']
+            }],
             where: {
                 ...condition, 
                 ...filterPostStatus,
