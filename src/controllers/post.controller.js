@@ -246,7 +246,14 @@ exports.detail = async (req, res) => {
 exports.popular = async (req, res) => {
     try {
         const data = await Post.findAll({
-            include: ["author", "category"],
+            include: ["author", "category", {
+                model: Image,
+                as: "image",
+                where: {
+                    post_type: 'attachment'
+                },
+                attributes: ['post_parent', 'guid', 'post_type']
+            }],
             where: {
                 post_status: 'publish',
                 post_type: 'post',
@@ -280,7 +287,14 @@ exports.popular = async (req, res) => {
 exports.latest = async (req, res) => {
     try {
         const data = await Post.findAll({
-            include: ["author", "category"],
+            include: ["author", "category", {
+                model: Image,
+                as: "image",
+                where: {
+                    post_type: 'attachment'
+                },
+                attributes: ['post_parent', 'guid', 'post_type']
+            }],
             where: {
                 post_status: 'publish',
                 post_type: 'post',
