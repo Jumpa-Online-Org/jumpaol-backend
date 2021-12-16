@@ -77,6 +77,9 @@ module.exports = (seq, Sequelize) => {
         },
         category_id: {
             type: Sequelize.INTEGER
+        },
+        sub_category_id: {
+            type: Sequelize.INTEGER
         }
     })
 
